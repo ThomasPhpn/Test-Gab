@@ -1,0 +1,401 @@
+/* =========================
+   PAGE
+========================= */
+
+body{
+  align-items:flex-start;
+  padding:
+    max(16px,env(safe-area-inset-top))
+    max(16px,env(safe-area-inset-right))
+    max(28px,env(safe-area-inset-bottom))
+    max(16px,env(safe-area-inset-left));
+  overflow-x:hidden;
+}
+
+.card.home-card{
+  width:100%;
+  max-width:720px;
+  margin:0 auto;
+  padding:8px 0 0;
+  background:transparent;
+  border:none;
+  box-shadow:none;
+  text-align:left;
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+}
+
+/* =========================
+   EN-TÊTE
+========================= */
+
+.home-header{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.home-logo{
+  flex:none;
+  width:56px;
+  height:56px;
+  padding:6px;
+  border-radius:50%;
+  background:#fff;
+  border:1px solid var(--border);
+  object-fit:contain;
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+.home-title{
+  margin:0;
+  font-size:clamp(26px,6vw,40px);
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-.02em;
+  color:var(--text);
+  overflow-wrap:anywhere;
+}
+
+.home-subtitle{
+  margin:4px 0 0;
+  font-size:clamp(15px,2.4vw,18px);
+  color:var(--text-light);
+  line-height:1.4;
+}
+
+/* =========================
+   BANNIÈRE (séance du jour)
+========================= */
+
+.home-banner{
+  position:relative;
+  overflow:hidden;
+  border-radius:var(--radius-lg);
+  padding:clamp(20px,4vw,32px);
+  background:var(--primary);
+  color:#fff;
+}
+
+/* La courbe vertébrale du logo, en filigrane */
+.banner-arc{
+  position:absolute;
+  right:-30px;
+  top:-20px;
+  height:calc(100% + 40px);
+  width:auto;
+  pointer-events:none;
+}
+
+.banner-content{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  max-width:560px;
+}
+
+.banner-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.banner-kicker{
+  font-size:15px;
+  font-weight:600;
+  color:rgba(255,255,255,.82);
+}
+
+.chip{
+  flex:none;
+  padding:5px 11px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+  background:rgba(255,255,255,.18);
+  color:#fff;
+}
+
+.chip.chip-late{
+  background:var(--amber-soft);
+  color:var(--amber);
+}
+
+.banner-title{
+  margin:0;
+  font-size:clamp(24px,5.4vw,36px);
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-.02em;
+  color:#fff;
+  max-width:16ch;
+}
+
+.banner-text{
+  margin:0;
+  font-size:clamp(15px,2.4vw,18px);
+  line-height:1.45;
+  color:rgba(255,255,255,.88);
+}
+
+.banner-main{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.banner-main .banner-title{
+  font-size:clamp(22px,5vw,30px);
+  margin-bottom:6px;
+}
+
+/* Anneau de progression */
+.ring{
+  position:relative;
+  flex:none;
+  width:76px;
+  height:76px;
+}
+
+.ring svg{
+  width:100%;
+  height:100%;
+  transform:rotate(-90deg);
+}
+
+.ring-track{
+  fill:none;
+  stroke:rgba(255,255,255,.2);
+  stroke-width:7;
+}
+
+.ring-value{
+  fill:none;
+  stroke:#fff;
+  stroke-width:7;
+  stroke-linecap:round;
+  transition:stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1);
+}
+
+.ring-label{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-size:17px;
+  font-weight:800;
+  line-height:1;
+}
+
+.ring-label small{
+  font-size:11px;
+  font-weight:600;
+  margin-top:3px;
+  color:rgba(255,255,255,.8);
+}
+
+.banner-cta{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin-top:4px;
+  padding:16px 20px;
+  border-radius:var(--radius);
+  background:#fff;
+  color:var(--primary-strong);
+  font-size:16px;
+  font-weight:700;
+  box-shadow:0 6px 18px rgba(4,52,61,.25);
+}
+
+.banner-cta:hover{
+  background:#F2FBFC;
+}
+
+.banner-cta svg{
+  width:18px;
+  height:18px;
+  fill:currentColor;
+}
+
+/* =========================
+   ACCÈS RAPIDES
+========================= */
+
+.home-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+
+.home-box{
+  margin:0;
+  width:100%;
+  min-height:76px;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  text-align:left;
+  background:var(--surface);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:none;
+}
+
+.home-box:hover{
+  border-color:#BFD8DB;
+  background:var(--surface);
+}
+
+.box-icon{
+  flex:none;
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  background:var(--primary-soft);
+  color:var(--primary);
+}
+
+.box-icon svg,
+.chev{
+  width:22px;
+  height:22px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.box-text{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.box-text strong{
+  font-size:17px;
+  font-weight:700;
+  line-height:1.25;
+}
+
+.box-text small{
+  font-size:14px;
+  font-weight:500;
+  color:var(--text-light);
+  line-height:1.3;
+}
+
+.chev{
+  flex:none;
+  width:20px;
+  height:20px;
+  color:#9DB4B7;
+}
+
+/* =========================
+   ADMIN
+========================= */
+
+.home-admin{
+  margin:0;
+  width:100%;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  background:transparent;
+  color:var(--text-light);
+  border:1px dashed #BFD3D5;
+  border-radius:var(--radius);
+  font-size:15px;
+  font-weight:600;
+  box-shadow:none;
+}
+
+.home-admin:hover{
+  color:var(--primary-strong);
+  border-color:var(--primary);
+}
+
+.home-admin svg{
+  width:18px;
+  height:18px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* =========================
+   TABLETTE
+========================= */
+
+@media (min-width:640px){
+
+  .card.home-card{
+    gap:26px;
+    padding-top:24px;
+  }
+
+  .home-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+
+  .home-box{
+    min-height:88px;
+  }
+
+  .home-logo{
+    width:64px;
+    height:64px;
+  }
+
+  .ring{
+    width:92px;
+    height:92px;
+  }
+}
+
+/* =========================
+   POPUPS ADMIN
+========================= */
+
+body.admin-open{
+  overflow:hidden;
+}
+
+.admin-popup,
+.admin-panel,
+.exercise-popup{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow-y:auto;
+  padding:
+    max(20px,env(safe-area-inset-top))
+    16px
+    max(20px,env(safe-area-inset-bottom));
+}

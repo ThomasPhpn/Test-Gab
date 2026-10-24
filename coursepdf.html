@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Programme reprise course</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+
+:root{
+--c1:#0FA5C9;
+--c2:#008FB3;
+--c3:#066E87;
+--c4:#EAFBFF;
+}
+
+body{
+margin:0;
+background:#f2f7f9;
+font-family:Segoe UI,sans-serif;
+padding:20px;
+}
+
+#page{
+width:210mm;
+height:297mm;
+margin:auto;
+background:white;
+padding:8mm;
+box-sizing:border-box;
+overflow:hidden;
+
+display:flex;
+flex-direction:column;
+}
+
+.header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+border-bottom:3px solid var(--c1);
+padding-bottom:10px;
+margin-bottom:8px;
+}
+
+.logoBloc img{
+height:130px;
+width:auto;
+object-fit:contain;
+}
+
+.cabinet{
+font-size:13px;
+line-height:1.25;
+}
+
+.cabinet b{
+display:block;
+font-size:15px;
+font-weight:600;
+color:var(--c2);
+margin-bottom:2px;
+}
+
+.titre{
+text-align:center;
+flex:1;
+}
+
+.titre .small{
+font-size:20px;
+font-weight:700;
+}
+
+.titre .big{
+font-size:40px;
+font-weight:900;
+color:var(--c2);
+}
+
+.infos{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+gap:8px;
+margin-bottom:8px;
+}
+
+.info{
+background:var(--c4);
+border:1px solid #cfeef7;
+padding:6px;
+border-radius:10px;
+}
+
+.infoLabel{
+font-size:12px;
+color:#666;
+}
+
+.infoValue{
+font-weight:700;
+font-size:17px;
+}
+
+.bandeau{
+background:var(--c4);
+border-left:5px solid var(--c1);
+padding:10px;
+margin-bottom:15px;
+border-radius:8px;
+}
+#guidePage{
+width:210mm;
+height:297mm;
+margin:20px auto;
+background:white;
+padding:8mm;
+box-sizing:border-box;
+}
+
+.guideGrid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-top:20px;
+}
+
+.guideCard{
+background:white;
+border:2px solid #d8eef5;
+border-radius:14px;
+padding:14px;
+box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+
+.guideCard p{
+margin:6px 0;
+font-size:14px;
+line-height:1.4;
+}
+
+.guideCard h3{
+margin:0 0 10px 0;
+padding-bottom:6px;
+border-bottom:2px solid #e8f6fb;
+}
+
+.guideCard h3{
+margin-top:0;
+color:var(--c2);
+}
+
+#weeks{
+flex:1;
+
+display:grid;
+grid-template-columns:1fr 1fr;
+
+align-content:stretch;
+gap:10px;
+margin-bottom:4px;
+}
+
+.week{
+border:1px solid #d9eef4;
+border-radius:10px;
+overflow:hidden;
+margin:0;
+display:flex;
+flex-direction:column;
+height:100%;
+}
+
+.weekTitle{
+background:linear-gradient(
+90deg,
+var(--c3),
+var(--c1)
+);
+color:white;
+padding:5px 10px;
+font-weight:700;
+font-size:16px;
+}
+
+.weekBody{
+padding:2px 6px;
+}
+
+.row{
+display:grid;
+grid-template-columns:55px 70px 1fr 20px;
+align-items:center;
+padding:2px 0;
+border-bottom:1px solid #eee;
+font-size:12px;
+column-gap:8px;
+}
+
+.row:last-child{
+border-bottom:none;
+}
+
+.typeSeance{
+white-space:nowrap;
+}
+
+.footer{
+margin-top:4px;
+background:var(--c4);
+font-weight:600;
+padding:8px;
+border-radius:12px;
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:8px;
+font-size:12px;
+text-align:center;
+}
+
+.citation{
+margin-top:8px;
+text-align:center;
+font-style:italic;
+font-size:16px;
+font-weight:600;
+color:#555;
+line-height:1.4;
+}
+
+.download{
+position:fixed;
+bottom:20px;
+right:20px;
+padding:14px 20px;
+border:none;
+border-radius:12px;
+background:var(--c2);
+color:white;
+cursor:pointer;
+font-size:16px;
+}
+
+@media print{
+.download{
+display:none;
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="page">
+
+<div class="header">
+
+<div class="logoBloc">
+
+<img src="logo.png">
+
+
+</div>
+
+<div class="titre">
+
+<div class="small">
+PROGRAMME PERSONNALISÉ
+</div>
+
+<div class="big">
+REPRISE COURSE
+</div>
+
+</div>
+
+</div>
+
+<div class="infos">
+
+<div class="info">
+<div class="infoLabel">👤 Patient</div>
+<div id="patient" class="infoValue"></div>
+</div>
+
+<div class="info">
+<div class="infoLabel">🎯 Objectif</div>
+<div id="objectif" class="infoValue"></div>
+</div>
+
+<div class="info">
+<div class="infoLabel">📈 Niveau</div>
+<div id="niveau" class="infoValue"></div>
+</div>
+
+<div class="info">
+<div class="infoLabel">
+🩺 Pathologie
+</div>
+<div id="pathologie"
+class="infoValue"></div>
+</div>
+
+<div class="info">
+<div class="infoLabel">📅 Durée</div>
+<div id="semaines" class="infoValue"></div>
+</div>
+
+
+</div>
+
+<div class="bandeau">
+🚶 Échauffement : 5 min &nbsp;&nbsp;
+🔄 Alternance course/marche progressive &nbsp;&nbsp;
+🧘 Récupération : 3 min
+</div>
+
+<div id="weeks"></div>
+
+<div class="footer">
+
+<div>💧 Hydratez-vous</div>
+<div>👟 Échauffez-vous</div>
+<div>❤️ Écoutez votre corps</div>
+<div>😊 Prenez plaisir</div>
+<div>🏆 Chaque pas compte</div>
+
+</div>
+
+<div class="citation">
+L'objectif est de terminer chaque séance avec la sensation de pouvoir en faire un peu plus.
+</div>
+
+</div>
+
+<!-- PAGE 2 -->
+
+<div id="guidePage">
+
+<div class="header">
+
+<div class="logoBloc">
+
+<img src="logo.png">
+
+
+</div>
+
+<div class="titre">
+<div class="small">
+PROGRAMME D'ACCOMPAGNEMENT
+</div>
+
+<div class="big">
+GUIDE DU COUREUR
+</div>
+</div>
+
+</div>
+
+<div class="guideGrid">
+
+<div class="guideCard">
+<h3>📊 Échelle RPE</h3>
+
+<p><b>2-3</b> : Très facile</p>
+<p><b>4-5</b> : Confortable</p>
+<p><b>6-7</b> : Soutenu</p>
+<p><b>8</b> : Difficile</p>
+<p><b>9-10</b> : Maximal</p>
+
+<p>L'objectif est de terminer la majorité des séances avec la sensation de pouvoir en faire davantage.</p>
+</div>
+
+<div class="guideCard">
+<h3>🏃 Types de séances</h3>
+
+<p><b>❤️ Endurance</b><br>
+Conversation facile.</p>
+
+<p><b>🔥 Tempo</b><br>
+Allure soutenue mais contrôlée.</p>
+
+<p><b>🔄 Fractionné</b><br>
+Alternance effort et récupération.</p>
+
+<p><b>🏃 Sortie longue</b><br>
+Développe l'endurance générale.</p>
+</div>
+
+<div class="guideCard">
+<h3>🦵 Gestion de la douleur</h3>
+
+<p><b>0-2/10</b> : acceptable.</p>
+<p><b>3-5/10</b> : réduire l'intensité et surveiller.</p>
+<p><b>>5/10</b> : interrompre la séance.</p>
+
+<p>Une douleur persistante plus de 48h doit être signalée à votre kinésithérapeute.</p>
+</div>
+
+<div class="guideCard">
+<h3>😴 Sommeil & récupération</h3>
+
+<p>Objectif : 7 à 9 h de sommeil.</p>
+
+<p>Le sommeil est le principal outil de récupération.</p>
+
+<p>Prévoir au minimum 1 journée de récupération complète par semaine.</p>
+</div>
+
+<div class="guideCard">
+<h3>💧 Hydratation</h3>
+
+<p>Boire régulièrement tout au long de la journée.</p>
+
+<p>Augmenter les apports lors des fortes chaleurs.</p>
+
+<p>Des urines claires sont généralement le signe d'une bonne hydratation.</p>
+</div>
+
+<div class="guideCard">
+<h3>🍽 Nutrition</h3>
+
+<p>✓ Fruits<br>
+✓ Légumes<br>
+✓ Féculents<br>
+✓ Protéines</p>
+
+<p>Après séance : eau + collation riche en protéines.</p>
+</div>
+
+<div class="guideCard">
+<h3>👟 Prévention des blessures</h3>
+
+<p>✓ Progression progressive</p>
+<p>✓ Chaussures adaptées</p>
+<p>✓ Échauffement systématique</p>
+<p>✓ Respect des jours de récupération</p>
+<p>✓ Écoute des signaux du corps</p>
+</div>
+
+<div class="guideCard">
+<h3>📞 Votre kinésithérapeute</h3>
+
+<p><b>Gabriel LAVEAU</b><br>
+Kinésithérapeute</p>
+
+<p>1 avenue de la coopération<br>
+86200 Loudun</p>
+
+<p>☎ 05 64 72 40 15</p>
+</div>
+
+</div>
+
+<div style="
+margin-top:15px;
+padding:10px;
+background:#f7fcfe;
+border-radius:10px;
+text-align:center;
+font-size:13px;
+color:#666;
+">
+Programme généré avec GabrielTimer®
+<br>
+Suivi et accompagnement personnalisé
+</div>
+
+
+<div class="citation">
+Chaque séance est un pas de plus vers votre objectif.
+</div>
+
+</div>
+
+
+<button class="download" onclick="downloadPdf()">
+📄 Télécharger PDF
+</button>
+
+<script>
+
+const data =
+JSON.parse(
+  sessionStorage.getItem(
+    "coursePdfData"
+  )
+);
+
+console.log("coursePdfData =", data);
+
+if(!data){
+  document.body.innerHTML = `
+    <h1 style="padding:40px">
+      Aucune donnée reçue
+    </h1>
+  `;
+  throw new Error(
+    "coursePdfData manquant"
+  );
+}
+
+console.log("coursePdfData =", data);
+
+
+const prenom =
+(data.patient || "")
+.split("_")[0];
+
+document.getElementById("patient").textContent =
+prenom.charAt(0).toUpperCase() +
+prenom.slice(1);
+
+document.getElementById("objectif").textContent =
+data.objectif;
+
+document.getElementById("niveau").textContent =
+data.niveau;
+
+document.getElementById("pathologie")
+.textContent =
+data.pathologie || "Aucune";
+
+document.getElementById("semaines").textContent =
+data.semaines + " sem.";
+
+
+
+const weeks =
+document.getElementById("weeks");
+
+console.log(
+  "pdfData =",
+  data.pdfData
+);
+
+for(let w=1;w<=data.semaines;w++){
+
+const seances =
+data.pdfData.filter(
+s => s.semaine === w
+);
+
+const block =
+document.createElement("div");
+
+block.className = "week";
+
+let dateTexte = "";
+
+if(data.dateDebut){
+
+const debutSemaine =
+new Date(data.dateDebut);
+
+debutSemaine.setDate(
+debutSemaine.getDate()
++ ((w-1) * 7)
+);
+
+const finSemaine =
+new Date(debutSemaine);
+
+finSemaine.setDate(
+finSemaine.getDate() + 6
+);
+
+dateTexte =
+`
+<div style="
+font-size:11px;
+font-weight:400;
+opacity:.9;
+margin-top:2px;
+">
+${debutSemaine.toLocaleDateString("fr-FR")}
+ → 
+${finSemaine.toLocaleDateString("fr-FR")}
+</div>
+`;
+
+}
+
+block.innerHTML = `
+<div class="weekTitle">
+🏁 SEMAINE ${w}
+${dateTexte}
+</div>
+<div class="weekBody">
+${seances.map(s=>`
+<div class="row">
+<div><b>S${s.semaine}${s.seance}</b></div>
+
+<div>${s.duree} min</div>
+
+<div class="typeSeance">
+${
+s.typeSeance === "longue"
+
+? (
+data.modeAffichage === "distance"
+? `🏃 ${s.distanceKm} km (~${s.dureeContinue} min)
+(RPE ${s.rpe})`
+: `🏃 ${s.dureeContinue} min (~${s.distanceKm} km)
+(RPE ${s.rpe})`
+)
+
+: s.typeSeance === "endurance"
+
+? `❤️ Endurance ${Math.round(s.duree*0.8)} min
+(RPE ${s.rpe})`
+
+: s.typeSeance === "tempo"
+
+? `🔥 Tempo ${Math.round(s.duree*0.4)} min
+(RPE ${s.rpe})`
+
+: s.typeSeance === "recuperation"
+
+? `🧘 Récupération ${Math.round(s.duree*0.5)} min
+(RPE ${s.rpe})`
+
+: `🔄 ${s.courseMinutes}'/${s.marcheMinutes}' × ${s.repetitions}
+(RPE ${s.rpe})`
+}
+</div>
+
+<div>☐</div>
+</div>
+`).join("")}
+</div>
+`;
+
+weeks.appendChild(block);
+
+}
+async function downloadPdf(){
+
+const page1 =
+document.getElementById("page");
+
+const page2 =
+document.getElementById("guidePage");
+
+const canvas1 =
+await html2canvas(page1,{
+scale:3
+});
+
+const canvas2 =
+await html2canvas(page2,{
+scale:3
+});
+
+const {jsPDF} =
+window.jspdf;
+
+const pdf =
+new jsPDF(
+"p",
+"mm",
+"a4"
+);
+
+pdf.addImage(
+canvas1.toDataURL(
+"image/jpeg",
+0.95
+),
+"JPEG",
+0,
+0,
+210,
+297
+);
+
+pdf.addPage();
+
+pdf.addImage(
+canvas2.toDataURL(
+"image/jpeg",
+0.95
+),
+"JPEG",
+0,
+0,
+210,
+297
+);
+
+pdf.save(
+"ProgrammeCourse.pdf"
+);
+
+}
+</script>
+
+</body>
+</html>

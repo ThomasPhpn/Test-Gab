@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Générateur reprise course</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial,sans-serif;
+background:#f4f4f4;
+margin:0;
+padding:20px;
+}
+
+.card{
+background:white;
+max-width:500px;
+margin:auto;
+padding:20px;
+border-radius:16px;
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+
+h2{
+text-align:center;
+margin-top:0;
+}
+
+.field{
+margin-bottom:15px;
+display:flex;
+flex-direction:column;
+}
+
+label{
+font-weight:bold;
+margin-bottom:5px;
+}
+
+select,
+input{
+padding:10px;
+border-radius:10px;
+border:1px solid #ddd;
+}
+
+.checkbox{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+font-size:16px;
+cursor:pointer;
+margin-top:10px;
+}
+
+.generate{
+background:#2563eb;
+color:white;
+}
+
+.back{
+background:#e5e7eb;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>🏃 Générateur reprise course</h2>
+
+<div class="field">
+<label>Patient</label>
+<input
+id="patient"
+value="admin"
+placeholder="Nom du patient">
+</div>
+
+<div class="field">
+<label>Objectif</label>
+<select id="objectif">
+<option>5 km</option>
+<option selected>10 km</option>
+<option>Semi</option>
+</select>
+</div>
+
+<div class="field">
+<label>Niveau</label>
+<select id="niveau">
+<option>Débutant</option>
+<option selected>Reprise</option>
+<option>Occasionnel</option>
+<option>Régulier</option>
+</select>
+</div>
+
+<div class="field">
+<label>Pathologie</label>
+<select id="pathologie">
+<option>Aucune</option>
+<option>Syndrome rotulien</option>
+<option>Tendinopathie achilléenne</option>
+<option>Fasciite plantaire</option>
+<option>Lombalgie</option>
+</select>
+</div>
+
+<div class="field">
+<label>Temps de course continue actuel (min)</label>
+<input
+id="tempsActuel"
+type="number"
+value="10"
+min="0">
+</div>
+
+<div class="field">
+<label>Allure moyenne (min/km)</label>
+<input
+id="allure"
+type="number"
+step="0.1"
+value="6"
+min="3"
+max="12">
+</div>
+
+<div class="field">
+<label>Mode programme</label>
+<select id="modeProgramme">
+<option value="auto" selected>🤖 Auto</option>
+<option value="temps">⏱ Temps</option>
+<option value="distance">📏 Distance</option>
+</select>
+</div>
+<div class="field">
+<label>Nombre de semaines</label>
+<input
+id="semaines"
+type="number"
+value="8"
+min="1">
+</div>
+
+<div class="field">
+<label>Séances par semaine</label>
+<input
+id="seances"
+type="number"
+value="3"
+min="1">
+</div>
+
+<div class="field">
+<label>Date de début</label>
+<input
+id="dateDebut"
+type="date">
+</div>
+
+<div class="checkbox">
+<input
+id="tapis"
+type="checkbox"
+checked>
+<label for="tapis">
+Tapis de course disponible
+</label>
+</div>
+
+<div class="field">
+<label>Sexe</label>
+<select id="sexe">
+<option value="H" selected>👨 Homme</option>
+<option value="F">👩 Femme</option>
+</select>
+</div>
+
+<button
+class="generate"
+onclick="previewProgram()">
+
+📄 Prévisualiser PDF
+
+</button>
+
+<button
+class="generate"
+onclick="generateProgram()">
+
+🚀 Générer et enregistrer ☁️
+
+</button>
+
+<button
+class="back"
+onclick="history.back()">
+
+⬅ Retour
+
+</button>
+
+</div>
+
+<script type="module">
+
+import {
+saveProgramToCloud
+}
+from "./exercises/js/cloud.js";
+
+function generatePdf(
+patient,
+objectif,
+niveau,
+pdfData
+){
+
+const {
+jsPDF
+} = window.jspdf;
+
+const doc =
+new jsPDF();
+
+let y = 15;
+
+doc.setFontSize(18);
+doc.text(
+"Programme reprise course",
+10,
+y
+);
+
+y += 10;
+
+doc.setFontSize(12);
+
+doc.text(
+"Patient : " + patient,
+10,
+y
+);
+
+y += 7;
+
+doc.text(
+"Objectif : " + objectif,
+10,
+y
+);
+
+y += 7;
+
+doc.text(
+"Niveau : " + niveau,
+10,
+y
+);
+
+y += 12;
+
+let semaineCourante = 0;
+
+pdfData.forEach(s => {
+
+if(
+s.semaine !== semaineCourante
+){
+
+semaineCourante =
+s.semaine;
+
+doc.setFontSize(14);
+
+doc.text(
+"SEMAINE " +
+semaineCourante,
+10,
+y
+);
+
+y += 8;
+
+doc.setFontSize(11);
+
+}
+
+doc.text(
+
+`□ S${s.semaine}${s.seance} - ${s.duree} min`,
+
+12,
+
+y
+
+);
+
+y += 6;
+
+doc.text(
+
+`Marche 5 min / Course ${s.courseMinutes} min x ${s.repetitions}`,
+
+18,
+
+y
+
+);
+
+y += 8;
+
+if(y > 270){
+
+doc.addPage();
+
+y = 15;
+
+}
+
+});
+
+doc.save(
+`Programme_course_${patient}.pdf`
+);
+
+}
+
+async function buildProgram(
+saveToCloud = true
+){
+
+const patient =
+document.getElementById("patient")
+?.value
+?.trim()
+|| "admin";
+
+const objectif =
+document.getElementById("objectif")
+.value;
+
+const niveau =
+document.getElementById("niveau")
+.value;
+
+const pathologie =
+document.getElementById("pathologie")
+.value;
+
+const tempsActuel =
+parseInt(
+document.getElementById("tempsActuel")
+.value
+) || 10;
+
+const allure =
+parseFloat(
+document.getElementById("allure")
+.value
+) || 6;
+
+const modeProgramme =
+document.getElementById(
+"modeProgramme"
+).value;
+
+const semaines =
+parseInt(
+document.getElementById("semaines")
+.value
+) || 8;
+
+const seancesParSemaine =
+Math.max(
+1,
+Math.min(
+5,
+parseInt(
+document.getElementById("seances")
+.value
+) || 3
+)
+);
+
+const dateDebut =
+document.getElementById(
+"dateDebut"
+).value;
+
+const tapis =
+document.getElementById("tapis")
+.checked;
+
+const sexe =
+document.getElementById("sexe")
+.value;
+
+const lettres =
+["A","B","C","D","E"];
+
+const dossier =
+`Reprise course ${objectif}`;
+
+const programmeId =
+`${patient}_${Date.now()}`;
+
+const programmeNom =
+`Reprise course ${objectif}`;
+
+const exercises =
+await fetch(
+"./exercises/data/exercises.json"
+).then(r => r.json());
+
+let modeAffichage =
+modeProgramme;
+
+if(modeProgramme === "auto"){
+
+modeAffichage =
+(
+niveau === "Débutant"
+||
+niveau === "Reprise"
+)
+? "temps"
+: "distance";
+
+}
+
+let marcheBase;
+let courseBase;
+
+if(tapis){
+
+marcheBase =
+structuredClone(
+exercises.find(
+e => e.id === "tapismarche"
+)
+);
+
+courseBase =
+structuredClone(
+exercises.find(
+e => e.id === "tapiscourse"
+)
+);
+
+}else{
+
+marcheBase =
+structuredClone(
+exercises.find(
+e => e.id === "marche"
+)
+);
+
+courseBase =
+structuredClone(
+exercises.find(
+e => e.id === "course"
+)
+);
+
+}
+
+
+
+
+
+if(!marcheBase || !courseBase){
+  alert(
+    "tapismarche ou tapiscourse introuvable dans exercises.json"
+  );
+  return;
+}
+
+let totalCrees = 0;
+
+try{
+
+const pdfData = [];
+
+for(
+let semaine = 1;
+semaine <= semaines;
+semaine++
+){
+
+for(
+let s = 0;
+s < seancesParSemaine;
+s++
+){
+
+const lettre =
+lettres[s];
+
+let dateSeance = null;
+
+if(dateDebut){
+
+const dateBase =
+new Date(dateDebut);
+
+const numeroSeance =
+((semaine - 1)
+* seancesParSemaine)
++ s;
+
+dateSeance =
+new Date(dateBase);
+
+dateSeance.setDate(
+dateBase.getDate()
++ (numeroSeance * 2)
+);
+
+}
+
+let typeSeance;
+
+if(seancesParSemaine === 2){
+
+typeSeance =
+[
+"endurance",
+"longue"
+][s];
+
+}else if(seancesParSemaine === 3){
+
+if(niveau === "Débutant"){
+
+typeSeance =
+[
+"endurance",
+"endurance",
+"longue"
+][s];
+
+}else{
+
+typeSeance =
+[
+"endurance",
+
+(semaine % 2 === 0)
+? "fractionne"
+: "tempo",
+
+"longue"
+][s];
+
+}
+
+}else if(seancesParSemaine === 4){
+
+typeSeance =
+[
+"endurance",
+"tempo",
+"longue",
+"fractionne"
+][s];
+
+}else{
+
+typeSeance =
+[
+"endurance",
+"tempo",
+"recuperation",
+"fractionne",
+"longue"
+][s];
+
+}
+
+const indexSeance =
+(
+(semaine - 1)
+* seancesParSemaine
+)
++ s;
+
+const totalSeances =
+semaines
+* seancesParSemaine;
+
+let dureeDebut;
+let dureeFin;
+
+switch(niveau){
+
+case "Débutant":
+dureeDebut = 20;
+dureeFin = 35;
+break;
+
+case "Reprise":
+dureeDebut = 25;
+dureeFin = 45;
+break;
+
+case "Occasionnel":
+dureeDebut = 35;
+dureeFin = 60;
+break;
+
+case "Régulier":
+dureeDebut = 45;
+dureeFin = 75;
+break;
+
+default:
+dureeDebut = 25;
+dureeFin = 45;
+
+}
+
+let dureeCible =
+Math.round(
+dureeDebut +
+(
+(dureeFin - dureeDebut)
+*
+(indexSeance /
+Math.max(
+1,
+totalSeances - 1
+))
+)
+);
+
+if(
+semaine > 1
+&& semaine % 4 === 0
+){
+dureeCible =
+Math.round(
+dureeCible * 0.8
+);
+}
+
+let courseMinutes;
+let marcheMinutes;
+
+const progression =
+indexSeance /
+Math.max(
+1,
+totalSeances - 1
+);
+
+if(tempsActuel < 5){
+
+courseMinutes =
+Math.round(
+1 + progression * 4
+);
+
+marcheMinutes = 2;
+
+}else if(tempsActuel < 10){
+
+courseMinutes =
+Math.round(
+2 + progression * 6
+);
+
+marcheMinutes =
+progression > 0.5
+? 1
+: 2;
+
+}else if(tempsActuel < 20){
+
+courseMinutes =
+Math.round(
+3 + progression * 7
+);
+
+marcheMinutes =
+progression > 0.5
+? 1
+: 2;
+
+}else{
+
+courseMinutes =
+Math.round(
+5 + progression * 10
+);
+
+marcheMinutes = 1;
+
+}
+
+const tempsDisponible =
+dureeCible - 8;
+
+const repetitions =
+Math.max(
+2,
+Math.round(
+tempsDisponible /
+(
+courseMinutes +
+marcheMinutes
+)
+)
+);
+
+let semaineDebutSortieLongue;
+
+switch(niveau){
+
+case "Débutant":
+semaineDebutSortieLongue = 4;
+break;
+
+case "Reprise":
+semaineDebutSortieLongue = 3;
+break;
+
+case "Occasionnel":
+semaineDebutSortieLongue = 2;
+break;
+
+case "Régulier":
+semaineDebutSortieLongue = 2;
+break;
+
+default:
+semaineDebutSortieLongue = 3;
+
+}
+
+if(
+typeSeance === "longue"
+&& semaine < semaineDebutSortieLongue
+){
+  typeSeance = "endurance";
+}
+
+const estSortieLongue =
+(
+typeSeance === "longue"
+&& semaine >= semaineDebutSortieLongue
+);
+
+let distanceFinale;
+
+switch(objectif){
+
+case "5 km":
+
+switch(niveau){
+
+case "Débutant":
+distanceFinale = 6;
+break;
+
+case "Reprise":
+distanceFinale = 7;
+break;
+
+case "Occasionnel":
+distanceFinale = 8;
+break;
+
+case "Régulier":
+distanceFinale = 8;
+break;
+
+}
+
+break;
+
+case "10 km":
+
+switch(niveau){
+
+case "Débutant":
+distanceFinale = 10;
+break;
+
+case "Reprise":
+distanceFinale = 10;
+break;
+
+case "Occasionnel":
+distanceFinale = 11;
+break;
+
+case "Régulier":
+distanceFinale = 12;
+break;
+
+}
+
+break;
+
+case "Semi":
+
+switch(niveau){
+
+case "Débutant":
+distanceFinale = 18;
+break;
+
+case "Reprise":
+distanceFinale = 19;
+break;
+
+case "Occasionnel":
+distanceFinale = 20;
+break;
+
+case "Régulier":
+distanceFinale = 21;
+break;
+
+}
+
+break;
+
+default:
+
+distanceFinale = 10;
+
+}
+
+let dureeContinueFinale =
+Math.round(
+distanceFinale * allure
+);
+
+switch(pathologie){
+
+case "Syndrome rotulien":
+dureeContinueFinale =
+Math.round(dureeContinueFinale * 0.8);
+break;
+
+case "Tendinopathie achilléenne":
+dureeContinueFinale =
+Math.round(dureeContinueFinale * 0.85);
+break;
+
+case "Fasciite plantaire":
+dureeContinueFinale =
+Math.round(dureeContinueFinale * 0.75);
+break;
+
+case "Lombalgie":
+dureeContinueFinale =
+Math.round(dureeContinueFinale * 0.9);
+break;
+
+}
+
+
+const progressionSortieLongue =
+Math.max(
+1,
+semaines - semaineDebutSortieLongue
+);
+
+let dureeContinue;
+
+if(semaine < semaineDebutSortieLongue){
+
+dureeContinue = tempsActuel;
+
+}else{
+
+dureeContinue =
+Math.round(
+tempsActuel +
+(
+(semaine - semaineDebutSortieLongue)
+*
+(dureeContinueFinale - tempsActuel)
+/
+progressionSortieLongue
+)
+);
+
+}
+
+if(
+objectif === "Semi"
+&& semaine === semaines
+){
+
+dureeContinue =
+Math.round(
+dureeContinueFinale * 0.65
+);
+
+}
+
+pdfData.push({
+
+semaine,
+
+seance: lettre,
+
+rpe:
+
+estSortieLongue
+? "4-5"
+
+: typeSeance === "endurance"
+? "3-4"
+
+: typeSeance === "tempo"
+? "6-7"
+
+: typeSeance === "recuperation"
+? "2-3"
+
+: "7-8",
+
+duree:
+estSortieLongue
+? dureeContinue
+: dureeCible,
+
+courseMinutes,
+
+marcheMinutes,
+
+repetitions,
+
+estSortieLongue,
+
+dureeContinue,
+
+distanceKm:
+(
+dureeContinue /
+allure
+).toFixed(1),
+
+typeSeance:
+estSortieLongue
+? "longue"
+: typeSeance
+
+});
+
+const exoMarche =
+structuredClone(
+marcheBase
+);
+
+exoMarche.ex = 300;
+exoMarche.repos = 0;
+exoMarche.reps = 1;
+
+const exoCourse =
+structuredClone(
+courseBase
+);
+
+if(estSortieLongue){
+
+exoCourse.ex =
+dureeContinue * 60;
+
+exoCourse.repos = 0;
+
+exoCourse.reps = 1;
+
+}else if(typeSeance === "endurance"){
+
+exoCourse.ex =
+Math.round(
+dureeCible * 0.8
+) * 60;
+
+exoCourse.repos = 0;
+exoCourse.reps = 1;
+
+}else if(typeSeance === "tempo"){
+
+exoCourse.ex =
+Math.round(
+dureeCible * 0.4
+) * 60;
+
+exoCourse.repos = 0;
+exoCourse.reps = 1;
+}else if(typeSeance === "recuperation"){
+
+exoCourse.ex =
+Math.round(
+dureeCible * 0.5
+) * 60;
+
+exoCourse.repos = 0;
+exoCourse.reps = 1;
+
+}else{
+
+// Fractionné
+
+exoCourse.ex =
+courseMinutes * 60;
+
+exoCourse.repos =
+marcheMinutes * 60;
+
+exoCourse.reps =
+repetitions;
+
+}
+
+const exoRecup =
+structuredClone(
+marcheBase
+);
+
+exoRecup.ex = 180;
+exoRecup.repos = 0;
+exoRecup.reps = 1;
+
+
+const programme = {
+
+id:
+crypto.randomUUID(),
+
+programmeId,
+programmeNom,
+
+objectif,
+niveau,
+pathologie,
+semainesProgramme: semaines,
+modeAffichage,
+
+pdfData,
+
+nom:
+`S${semaine}${lettre}`,
+
+patientId:
+patient,
+
+categorie:
+"course",
+
+dossier:
+dossier,
+
+semaine:
+semaine,
+
+seance:
+lettre,
+
+createdAt:
+Date.now(),
+
+updatedAt:
+Date.now(),
+
+dateDebut,
+
+datePrevue:
+dateSeance
+? dateSeance.toISOString()
+: null,
+
+datePrevueTexte:
+dateSeance
+? dateSeance.toLocaleDateString(
+"fr-FR"
+)
+: "",
+
+auteur:
+"gabriel",
+
+data:{
+
+nom:
+`S${semaine}${lettre}`,
+
+series:1,
+
+exercices:[
+
+exoMarche,
+
+exoCourse,
+
+exoRecup
+
+]
+
+}
+
+
+};
+
+if(saveToCloud){
+
+ console.log(
+  "PROGRAMME ENVOYE",
+  JSON.stringify(programme,null,2)
+);
+  await saveProgramToCloud(
+    programme
+  );
+
+}
+totalCrees++;
+
+}
+
+}
+
+sessionStorage.setItem(
+  "coursePdfData",
+  JSON.stringify({
+    patient,
+    objectif,
+    niveau,
+    pathologie,
+    semaines,
+    dateDebut,
+    modeAffichage,
+    pdfData
+  })
+);
+
+window.location.href =
+`coursepdf.html?v=${Date.now()}`;
+
+
+}catch(error){
+
+console.error(error);
+
+alert(
+"Erreur lors de la génération"
+);
+
+}
+
+};
+
+window.previewProgram =
+async function(){
+
+  await buildProgram(false);
+
+}
+
+window.generateProgram =
+async function(){
+
+  await buildProgram(true);
+
+}
+
+</script>
+
+<script>
+
+document
+.getElementById("dateDebut")
+.value =
+new Date()
+.toISOString()
+.split("T")[0];
+
+</script>
+
+</body>
+</html>

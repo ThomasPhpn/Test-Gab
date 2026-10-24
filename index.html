@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0A7C90">
+<title>Gabriel Timer</title>
+
+<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="home.css?v=3">
+<link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+
+<main class="card home-card">
+
+  <header class="home-header">
+    <img src="logo.png" class="home-logo" id="logo" alt="Gabriel Timer">
+    <div>
+      <h1 class="home-title" id="homeTitle">Bonjour</h1>
+      <p class="home-subtitle" id="homeSubtitle">Comment allez-vous aujourd’hui ?</p>
+    </div>
+  </header>
+
+  <section class="home-banner">
+    <svg class="banner-arc" viewBox="0 0 160 220" aria-hidden="true">
+      <path d="M28 6 C120 36 142 150 36 214" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="26" stroke-linecap="round"/>
+      <path d="M12 22 C96 50 114 148 22 200" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="7" stroke-dasharray="3 10"/>
+    </svg>
+
+    <div class="banner-content" id="todayBanner">
+      <h2 class="banner-title">Votre corps, votre priorité.</h2>
+      <p class="banner-text">Des programmes adaptés à vos objectifs.</p>
+    </div>
+  </section>
+
+  <nav class="home-grid" aria-label="Accès rapides">
+
+    <button id="btnProg" class="home-box" onclick="goProg()">
+      <span class="box-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4"/></svg></span>
+      <span class="box-text"><strong>Mes programmes</strong><small id="progSub">Vos séances prévues</small></span>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    <button id="btnLibre" class="home-box" onclick="modeLibre()">
+      <span class="box-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="14" r="8"/><path d="M12 10v4l2.5 2.5M10 2h4"/></svg></span>
+      <span class="box-text"><strong>Mode libre</strong><small>Un minuteur sans programme</small></span>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    <button id="btnPatho" class="home-box" onclick="zones()">
+      <span class="box-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+      <span class="box-text"><strong>Pathologies</strong><small>Programmes par zone</small></span>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    <button id="btnRespir" class="home-box respir" onclick="respir()">
+      <span class="box-icon"><svg viewBox="0 0 24 24"><path d="M17.7 7.7A2.5 2.5 0 1 1 19.5 12H2M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2"/></svg></span>
+      <span class="box-text"><strong>RespiR</strong><small>Exercices de respiration</small></span>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    <button id="btnProgression" class="home-box" onclick="progression()" style="display:none;">
+      <span class="box-icon"><svg viewBox="0 0 24 24"><path d="M22 7l-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></svg></span>
+      <span class="box-text"><strong>Ma progression</strong><small>Le suivi de vos séances</small></span>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+  </nav>
+
+  <button id="adminToolsBtn" class="home-admin" onclick="adminTools()" style="display:none;">
+    <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+    Outils administrateur
+  </button>
+
+</main>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+
+let patient = params.get("patient");
+
+if(!patient){
+  patient = localStorage.getItem("currentPatient");
+}
+
+const viewPatient = params.get("viewPatient") === "1";
+
+const isAdmin = localStorage.getItem("admin_ok") === "true";
+
+if(isAdmin && !viewPatient){
+  patient = null;
+}
+
+if(isAdmin && !viewPatient){
+
+  document.getElementById("homeTitle").textContent = "Mode administrateur";
+  document.getElementById("progSub").textContent = "Patients et programmes";
+  document.getElementById("homeSubtitle").textContent = "Gérez vos patients et leurs programmes.";
+
+}else if(patient){
+
+  const prenomBrut = patient.split("_")[0];
+  const prenom = prenomBrut.charAt(0).toUpperCase() + prenomBrut.slice(1);
+
+  document.getElementById("homeTitle").textContent = `Bonjour ${prenom}`;
+
+}
+
+const VERSION = "1.2";
+
+function goProg(){
+
+  if(isAdmin && !viewPatient){
+    window.location = "patients.html";
+    return;
+  }
+
+  if(patient){
+
+    let url = "cloud.html?patient=" + patient;
+
+    if(viewPatient){
+      url += "&viewPatient=1";
+    }
+
+    window.location = url;
+
+  }else{
+
+    window.location = "cloud.html";
+
+  }
+
+}
+
+function modeLibre(){
+
+  localStorage.removeItem("pathologie");
+  localStorage.removeItem("programme_temp");
+  localStorage.removeItem("current_programme");
+  localStorage.removeItem("patho_data");
+
+  if(patient){
+    window.location = "config.html?patient=" + patient + "&v=" + Date.now();
+  }else{
+    window.location = "config.html?v=" + Date.now();
+  }
+
+}
+
+if(patient){
+  localStorage.setItem("currentPatient", patient);
+}
+
+if(!isAdmin || viewPatient){
+
+  document.getElementById("btnLibre").style.display = "none";
+  document.getElementById("btnPatho").style.display = "none";
+  document.getElementById("btnRespir").style.display = "none";
+
+  document.getElementById("btnProgression").style.display = "flex";
+
+}
+
+function openPatient(patient){
+
+  localStorage.setItem("currentPatient", patient);
+
+  window.location = "cloud.html";
+
+}
+
+function zones(){
+
+  if(patient){
+    window.location = "pathologies.html?patient=" + patient + "&v=" + VERSION;
+  }else{
+    window.location = "pathologies.html?v=" + VERSION;
+  }
+
+}
+
+if(isAdmin && !viewPatient){
+  document.getElementById("adminToolsBtn").style.display = "flex";
+}
+
+function adminTools(){
+  window.location.href = "admin_tools.html?v=" + VERSION;
+}
+
+function progression(){
+
+  if(patient){
+    window.location = "progression.html?patient=" + patient + "&v=" + Date.now();
+  }else{
+    window.location = "progression.html?v=" + Date.now();
+  }
+
+}
+
+function respir(){
+
+  if(patient){
+    window.location = "respir/index.html?patient=" + patient + "&v=" + VERSION;
+  }else{
+    window.location = "respir/index.html?v=" + VERSION;
+  }
+
+}
+
+</script>
+
+<script>
+
+function escapeHtml(texte){
+  return String(texte ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+
+async function loadTodayBanner(){
+
+  if(!patient) return;
+
+  if(typeof loadProgramsFromCloud === "undefined"){
+    return;
+  }
+
+  const programmes = await loadProgramsFromCloud();
+
+  const seances = programmes
+    .filter(p =>
+      p.patientId === patient
+      && p.programmeId
+      && !p.terminee
+    )
+    .sort((a,b) => new Date(a.datePrevue) - new Date(b.datePrevue));
+
+  const banner = document.getElementById("todayBanner");
+
+  if(!seances.length){
+
+    banner.innerHTML = `
+      <h2 class="banner-title">Programme terminé</h2>
+      <p class="banner-text">Bravo ! Toutes les séances ont été réalisées.</p>
+    `;
+
+    return;
+  }
+
+  const prochaine = seances[0];
+
+  const dateSeance = new Date(prochaine.datePrevue);
+  dateSeance.setHours(0,0,0,0);
+
+  const aujourdHuiMinuit = new Date();
+  aujourdHuiMinuit.setHours(0,0,0,0);
+
+  const diffJours = Math.round(
+    (dateSeance - aujourdHuiMinuit) / (1000*60*60*24)
+  );
+
+  let texteDate = "";
+
+  if(diffJours === 0){
+    texteDate = "Aujourd’hui";
+  }else if(diffJours === 1){
+    texteDate = "Demain";
+  }else if(diffJours > 1){
+    texteDate = `Dans ${diffJours} jours`;
+  }else{
+    texteDate = "En retard";
+  }
+
+  const dateLisible = new Date(prochaine.datePrevue)
+    .toLocaleDateString("fr-FR", {
+      weekday:"long",
+      day:"numeric",
+      month:"long"
+    });
+
+  const dateAffichee = dateLisible.charAt(0).toUpperCase() + dateLisible.slice(1);
+
+  const totalProgramme = programmes.filter(
+    s => s.programmeId === prochaine.programmeId
+  ).length;
+
+  const faitesProgramme = programmes.filter(
+    s => s.programmeId === prochaine.programmeId && s.terminee
+  ).length;
+
+  const rayon = 30;
+  const circonference = 2 * Math.PI * rayon;
+  const ratio = totalProgramme ? faitesProgramme / totalProgramme : 0;
+
+  banner.innerHTML = `
+    <div class="banner-top">
+      <span class="banner-kicker">Prochaine séance</span>
+      <span class="chip ${diffJours < 0 ? "chip-late" : ""}">${texteDate}</span>
+    </div>
+
+    <div class="banner-main">
+      <div>
+        <h2 class="banner-title">${escapeHtml(prochaine.programmeNom)}</h2>
+        <p class="banner-text">${escapeHtml(prochaine.nom)}<br>${dateAffichee}</p>
+      </div>
+
+      <div class="ring" role="img" aria-label="${faitesProgramme} séances faites sur ${totalProgramme}">
+        <svg viewBox="0 0 76 76">
+          <circle class="ring-track" cx="38" cy="38" r="${rayon}"/>
+          <circle class="ring-value" id="ringValue" cx="38" cy="38" r="${rayon}"
+            stroke-dasharray="${circonference}"
+            stroke-dashoffset="${circonference}"/>
+        </svg>
+        <span class="ring-label">${faitesProgramme}/${totalProgramme}<small>séances</small></span>
+      </div>
+    </div>
+
+    <button class="banner-cta" onclick="launchToday('${escapeHtml(prochaine.firebaseId)}')">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>
+      Commencer ma séance
+    </button>
+  `;
+
+  // L’anneau se remplit une fois affiché
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const ring = document.getElementById("ringValue");
+      if(ring){
+        ring.style.strokeDashoffset = circonference * (1 - ratio);
+      }
+    });
+  });
+
+}
+
+</script>
+
+<script>
+
+window.launchToday = async function(id){
+
+  const programmes = await loadProgramsFromCloud();
+
+  const prog = programmes.find(p => p.firebaseId === id);
+
+  if(!prog){
+    alert("Programme introuvable");
+    return;
+  }
+
+  localStorage.setItem(
+    "programme_temp",
+    JSON.stringify(prog.données || prog.data || prog)
+  );
+
+  window.location =
+    "timer.html?cloud=" + id
+    + "&patient=" + patient
+    + "&v=" + Date.now();
+
+}
+
+</script>
+
+<!-- Service Worker -->
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js?v=1.3');
+}
+</script>
+
+<script type="module">
+
+import { loadProgramsFromCloud } from "./exercises/js/cloud.js";
+
+window.loadProgramsFromCloud = loadProgramsFromCloud;
+
+loadTodayBanner();
+
+</script>
+
+<script>
+// Triple appui sur le logo → connexion admin
+const logo = document.getElementById("logo");
+
+let tapCount = 0;
+let tapTimer;
+
+logo.addEventListener("click", () => {
+  tapCount++;
+
+  if(tapCount === 1){
+    tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+  }
+
+  if(tapCount >= 3){
+    clearTimeout(tapTimer);
+    tapCount = 0;
+    window.location.href = "login.html";
+  }
+});
+</script>
+
+</body>
+</html>

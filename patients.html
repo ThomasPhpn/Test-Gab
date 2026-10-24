@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Patients</title>
+
+<style>
+
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+background:#f1f5f9;
+display:flex;
+justify-content:center;
+padding:20px;
+}
+
+.card{
+background:white;
+width:100%;
+max-width:420px;
+border-radius:20px;
+padding:20px;
+box-shadow:0 5px 20px rgba(0,0,0,0.08);
+}
+
+h1{
+text-align:center;
+margin-bottom:20px;
+}
+
+button{
+width:100%;
+padding:16px;
+margin:10px 0;
+border:none;
+border-radius:14px;
+font-size:18px;
+font-weight:600;
+cursor:pointer;
+background:#2563eb;
+color:white;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+.backBtn{
+
+background:#ddd;
+color:#111;
+
+}
+
+.backBtn:hover{
+
+background:#ccc;
+
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>Mes programmes</h1>
+
+<button class="backBtn" onclick="goBack()">
+🏠 Retour accueil
+</button>
+
+<div id="patientsList"></div>
+
+</div>
+
+<script>
+
+if(
+  localStorage.getItem("admin_ok")
+  !== "true"
+){
+
+  window.location.href =
+  "login.html";
+
+}
+
+const params =
+new URLSearchParams(
+window.location.search
+);
+
+const patient =
+params.get("patient");
+
+const isAdmin =
+params.get("admin") === "true";
+
+/* 🔒 SI MODE PATIENT */
+if(patient && !isAdmin){
+
+window.location =
+"cloud.html?patient="
++ patient;
+
+}
+
+function openPatient(patient){
+
+localStorage.setItem(
+"currentPatient",
+patient
+);
+
+window.location =
+"cloud.html?patient="
++ patient +
+"&admin=true";
+
+}
+
+</script>
+<script type="module">
+
+import {
+loadProgramsFromCloud
+}
+from "./exercises/js/cloud.js";
+
+async function init(){
+
+const list =
+document.getElementById("patientsList");
+
+const programmes =
+await loadProgramsFromCloud();
+
+const ignored = [
+"demo",
+"test"
+];
+
+const patients =
+[
+...new Set(
+
+programmes
+
+.map(p =>
+p.patientId?.trim().toLowerCase()
+)
+
+.filter(Boolean)
+
+.filter(p =>
+!ignored.includes(p)
+)
+
+)
+]
+
+.sort();
+patients.forEach(patient => {
+
+const btn =
+document.createElement("button");
+
+btn.textContent = patient;
+
+btn.onclick = () => {
+
+localStorage.setItem(
+"currentPatient",
+patient
+);
+
+window.location =
+"cloud.html?patient="
++ patient +
+"&admin=true";
+
+};
+
+list.appendChild(btn);
+
+});
+
+}
+
+init();
+
+window.goBack = function(){
+
+window.location =
+"index.html?v=1.2";
+
+}
+
+</script>
+</body>
+</html>
