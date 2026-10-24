@@ -2,32 +2,29 @@
 
 Application web (PWA) de minuteur d’exercices pour la kinésithérapie : programmes par patient, mode libre, pathologies, respiration et suivi de progression.
 
-Version à l’interface modernisée (accueil et outils administrateur), basée sur le projet GabrielTimer.github.io.
+Interface modernisée (accueil et outils administrateur), basée sur le projet GabrielTimer.github.io.
 
-## Mettre en ligne avec GitHub Pages
+## Mise en ligne
 
-1. Crée un dépôt sur GitHub (par exemple `gabriel-timer`).
-2. Dépose tout le contenu de ce dossier à la racine du dépôt (**Add file → Upload files**, ou `git push`).
-3. Va dans **Settings → Pages**, choisis **Deploy from a branch**, branche `main`, dossier `/ (root)`, puis **Save**.
-4. Une à deux minutes plus tard, l’app est en ligne sur `https://<ton-pseudo>.github.io/gabriel-timer/`.
+1. Mets tous ces fichiers à la racine d’un dépôt GitHub (`index.html` doit être visible directement dans la liste du dépôt).
+2. **Vercel** : *Add New → Project*, importe le dépôt, Framework Preset **Other**, sans commande de build.
+   **ou GitHub Pages** : *Settings → Pages*, branche `main`, dossier `/ (root)`.
 
-Les chemins sont relatifs : l’app marche dans un dépôt `<pseudo>.github.io` comme dans un dépôt classique.
+## Où sont enregistrés les programmes ?
 
-## Fichiers à compléter
+Par défaut, dans le navigateur de l’appareil utilisé (`localStorage`). Tout fonctionne tout de suite, mais un programme créé sur ton ordinateur n’apparaît pas sur le téléphone d’un patient.
 
-Ces éléments sont utilisés par l’app mais ne faisaient pas partie des fichiers récupérés :
+### Base de données en ligne (pour partager avec les patients)
 
-- `exercises/js/cloud.js` : connexion à la base de données (Firebase) des programmes patients
-- `exercises/data/exercises.json` et `exercises/data/program_templates.json`
-- `exercises/images/…` et `exercises/glossary.html`
-- `images/eva/` : images de l’échelle de douleur (page de fin)
-- `respir/index.html` : module de respiration
-
-Sans eux, l’accueil s’affiche mais les programmes, les images et RespiR ne fonctionnent pas.
+1. Va sur https://console.firebase.google.com et crée un projet (gratuit).
+2. *Build → Firestore Database → Créer une base*, région `europe-west`.
+3. *Paramètres du projet → Vos applications → Web (</>)*, puis copie l’objet `firebaseConfig`.
+4. Colle-le dans `exercises/js/cloud.js`, à la place de `const firebaseConfig = null;`.
+5. Dans *Firestore → Règles*, définis qui peut lire et écrire. Attention : des règles ouvertes à tous rendent les données des patients lisibles par n’importe qui.
 
 ## Accès administrateur
 
-Appuie trois fois sur le logo de l’accueil pour ouvrir la connexion. Le mot de passe est écrit en clair dans `login.html` (constante `PASSWORD`) : change-le avant de publier.
+Appuie trois fois sur le logo de l’accueil. Le mot de passe est défini dans `login.html` (constante `PASSWORD`) : change-le. Il reste lisible dans le code source, ce n’est donc pas une vraie protection.
 
 ## Structure
 
@@ -40,4 +37,7 @@ Appuie trois fois sur le logo de l’accueil pour ouvrir la connexion. Le mot de
 | `cloud.html` | Programmes du patient |
 | `progression.html`, `historique.html` | Suivi |
 | `admin_tools.html`, `patients.html`, `programmes_admin.html` | Espace administrateur |
+| `exercises/` | Exercices, images, données et stockage (`js/cloud.js`) |
+| `images/` | Fiches pathologies et échelle de douleur |
+| `respir/` | Module de respiration |
 | `sw.js`, `manifest.json` | Installation sur téléphone et hors ligne |
